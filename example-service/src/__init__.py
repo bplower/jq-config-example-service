@@ -15,7 +15,7 @@ def load_config(cfg_path):
     except:
         sys.exit("General error while opening config file: '{}'".format(cfg_path))
 
-def build_app(settings_path="./settings.json"):
+def build_app(settings_path):
     """ Main entrypoint for ExampleService """
     app_config = load_config(settings_path)
     app = ExampleService(app_config)

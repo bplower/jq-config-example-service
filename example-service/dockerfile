@@ -4,19 +4,14 @@ FROM base as builder
 
 RUN mkdir /install
 
-# Because of this bug: https://github.com/psycopg/psycopg2/issues/684
-RUN apk add gcc
-RUN apk add python3-dev
-RUN apk add musl-dev
-RUN apk add libffi-dev
-
 # Install gunicorn
 RUN python3 -m pip install --upgrade pip
 RUN pip3 install --install-option="--prefix=/install" gunicorn
 
 # Copy over and install our package
-COPY dist/example_service-0.1.0.tar.gz /build/example_service-0.1.0.tar.gz
-RUN pip3 install --install-option="--prefix=/install" /build/example_service-0.1.0.tar.gz
+COPY ./setup.py /build/setup.py
+COPY ./src /build/src
+RUN pip3 install --install-option="--prefix=/install" /build/.
 
 FROM base
 
