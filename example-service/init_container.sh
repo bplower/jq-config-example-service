@@ -9,7 +9,7 @@ SETTINGS_PATH=/settings.json
 # This is a jq script that searches through a given structure for null values
 # and prints a human readable error for each occurence. Causes jq to exit with
 # status code 5 if there are errors
-NULL_CHECK_SCRIPT='[ path(..|select(type=="null")) | "Missing value for config: .\( join(".") )\n" ] | if length > 0 then (join("") | halt_error) else empty end'
+NULL_CHECK_SCRIPT='[ path(..|select(type=="null")) | "Missing or invalid value for config: .\( join(".") )\n" ] | if length > 0 then (join("") | halt_error) else empty end'
 
 # Process the settings template file (the *.jq file), writing the result to
 # the expected setting path. The content is also validated by the null check
