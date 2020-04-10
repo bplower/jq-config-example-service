@@ -1,27 +1,19 @@
 FROM python:3.7.3-alpine as base
 
-FROM base as builder
-
-RUN mkdir /install
+# Install shell tools
+RUN apk add jq
 
 # Install gunicorn
 RUN python3 -m pip install --upgrade pip
-RUN pip3 install --install-option="--prefix=/install" gunicorn
+RUN pip3 install gunicorn
 
 # Copy over and install our package
 COPY ./setup.py /build/setup.py
 COPY ./src /build/src
-RUN pip3 install --install-option="--prefix=/install" /build/.
+RUN pip3 install /build/.
 
-FROM base
-
-# Configure container start
-COPY --from=builder /install /usr/local
-COPY --from=builder /usr/lib /usr/lib
-RUN apk add jq
-COPY init_container.sh /init_container.sh
-RUN chmod +x /init_container.sh
+# Copy the init script and config file
+COPY ./init_container.sh /init_container.sh
 COPY settings.json.jq /settings.json.jq
-WORKDIR /
-EXPOSE 80
+
 CMD /init_container.sh

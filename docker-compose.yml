@@ -6,4 +6,4 @@ services:
     build: example-service/.
     env_file: "${TARGET_ENV:-env.dev}"
     ports:
-      - 8000:80
+      - 8000:8000
