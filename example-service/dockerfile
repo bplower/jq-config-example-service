@@ -13,6 +13,7 @@ COPY ./src /build/src
 RUN pip3 install /build/.
 
 # Copy the init script and config file
+COPY ./jq-render /usr/bin/jq-render
 COPY ./init_container.sh /init_container.sh
 COPY settings.json.jq /settings.json.jq
 

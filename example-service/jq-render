@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+set -e
+
+# This takes two intputs: a path to a jq script file which produces some json,
+# and a path to write that output to. The script is intended to reference
+# environment variables to populate the config structure. The resulting content
+# is then checked for null values, indicating that required environment variables
+# are missing.
+#
+# Dependencies:
+# - jq
+# - tee
+
+INFILE=$1
+OUTFILE=$2
+
+# This is a jq script that searches through a given structure for null values
+# and prints a human readable error for each occurence. Causes jq to exit with
+# status code 5 if there are errors
+NULL_CHECK_SCRIPT='[ path(..|select(type=="null")) | "Missing or invalid value for config: .\( join(".") )\n" ] | if length > 0 then (join("") | halt_error) else empty end'
+
+# Process the settings template file (the *.jq file), writing the result to
+# the expected setting path. The content is also validated by the null check
+# script described above, which can potentially return a non-zero status code.
+jq --null-input --from-file $INFILE | tee $OUTFILE | jq "$NULL_CHECK_SCRIPT"
+
