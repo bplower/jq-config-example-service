@@ -1,24 +1,24 @@
 #!/usr/bin/env sh
 
-# Script setup
 # Set abort on error. This will cause the script to fail if the jq templating
 # process fails, thus preventing the service from starting with a potentially
 # invalid configuration.
 set -e
 SETTINGS_PATH=/settings.json
 
-# Template the environment variables into the settings template file, writing
-# the resulting data to the expected settings filepath
-jq --null-input --from-file /settings.json.jq > $SETTINGS_PATH
+# This is a jq script. It searches through a given structure for any null
+# values. It builds the key path (like ".my.foo.bar") and prints a human
+# readable warning for each occurence. Finally, it asserts that the list of
+# nulls should be zero in length. This will report 'false' when there are
+# errors, which causes jq to exit with a non-zero exit code when run with the
+# '--exit-status' flag
+NULL_CHECK_SCRIPT='[ path(..|select(type=="null")) | join(".") ] | (.[] | "Missing value for config: .\(.)"), length == 0'
 
-# Environment variables required by the template that were not test will
-# result in unquoted strings of "null". In this case, we don't want any
-# null values in our configuration (this may be different in your case)
-# so we grep for null. If no items were found, the exit code will be 0. If
-# instances of 'null' are found, the exit code will not be 0, and the
-# comparison will be false, thus causing the script to early abort because
-# of the `set -e`.
-[ $(grep -c 'null' $SETTINGS_PATH) == 0 ]
+# Process the settings template file (the *.jq file), writing the result to
+# the expected setting path. The resulting content is also piped into a
+# validation script, which checks for null values, returning a non-zero exit
+# code if any are found.
+jq --null-input --from-file /settings.json.jq | tee $SETTINGS_PATH | jq --exit-status --raw-output "$NULL_CHECK_SCRIPT"
 
 # Start the gunicorn service with an empty environment. This is an attempt to
 # minimize damage in the event code execution is obtained through the service
