@@ -1,0 +1,7 @@
+FROM alpine
+
+# Install shell tools
+RUN apk add jq
+
+# Copy the jq-render script
+COPY ./jq-render /usr/bin/jq-render

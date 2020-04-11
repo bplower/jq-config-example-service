@@ -1,7 +1,0 @@
-
-version: '3.1'
-
-services:
-  server:
-    build: example-service/.
-    env_file: "${TARGET_ENV:-env.dev}"

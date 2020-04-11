@@ -1,10 +1,4 @@
-FROM alpine
-
-# Install shell tools
-RUN apk add jq
-
-# Copy the jq-render script
-COPY ./jq-render /usr/bin/jq-render
+FROM jq-example-base
 
 # Prepare the resources for our service
 RUN mkdir /service
