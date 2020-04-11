@@ -1,20 +1,14 @@
-FROM python:3.7.3-alpine as base
+FROM alpine
 
 # Install shell tools
 RUN apk add jq
 
-# Install gunicorn
-RUN python3 -m pip install --upgrade pip
-RUN pip3 install gunicorn
-
-# Copy over and install our package
-COPY ./setup.py /build/setup.py
-COPY ./src /build/src
-RUN pip3 install /build/.
-
-# Copy the init script and config file
+# Copy the jq-render script
 COPY ./jq-render /usr/bin/jq-render
-COPY ./init_container.sh /init_container.sh
-COPY settings.json.jq /settings.json.jq
 
-CMD /init_container.sh
+# Prepare the resources for our service
+RUN mkdir /service
+WORKDIR /service
+
+COPY ./init_container.sh ./server.sh ./settings.json.jq ./
+CMD ./init_container.sh
